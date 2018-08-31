@@ -1,5 +1,10 @@
 import React, { Component } from 'react'
 import ipfs from './utils/ipfs.js'
+import './css/oswald.css'
+import './css/open-sans.css'
+import './css/pure-min.css'
+import './App.css'
+
 
 class DocPage extends Component {
 	constructor(props) {
@@ -7,58 +12,44 @@ class DocPage extends Component {
 
     	this.state = {
 	      	web3: this.props.web3,
+	      	contract: this.props.contract,
+	      	simpleStorage: this.props.simpleStorage,
 	      	patientId: '',
 	      	deptId: '',
-	      	docAddress: null,
-	      	buffer: null
+	      	ipfshash: '',
+	      	buffer: '',
+	      	account: null
     	}
-
-  	this.captureFile = this.captureFile.bind(this);
-  	this.getFile = this.getFile.bind(this);
-  	this.handleChange = this.handleChange.bind(this);
-
+    	this.handleChange = this.handleChange.bind(this);
+    	this.getFile = this.getFile.bind(this);
+    	this.uploadRecord = this.uploadRecord.bind(this);
+    	this.startcontract();
   	}
+  	
+  	startcontract()
+  	{
+  		const contract = this.state.contract; 		
+  		const simpleStorage = this.state.simpleStorage;
 
+  		simpleStorage.setProvider(this.state.web3.currentProvider)
 
-
-  	componentDidMount() {
-  		var web3 = this.state.web3;
-  		const docAddress = web3.eth.accounts[0];
-  		this.setState({docAddress}); //this sets doctor's address in the state
+  		this.state.web3.eth.getAccounts((error,accounts) => {
+  			simpleStorage.deployed().then((instance) => {
+  				this.simpleStorageInstance = instance
+  				this.setState({account : accounts[0]})
+  			})
+  		})
   	}
 
 	getFile = () => {
-		//await ipfs.get("/ipfs/Qma71JMRwZc2aVMZ5McmbggfTgMJJQ8k3HKM8GpMeBR2CU", (err, res) => {
-		//	console.log(err, res[0].content.toString());
-		//});
-		let patientId = this.state.patientId, deptId = this.state.deptId;
-		console.log(patientId, deptId);
-  	}
-
-  	captureFile = (evt) => {
-	    evt.preventDefault();
-	    evt.stopPropagation();
-	    const file = evt.target.files[0];
-	    let reader = new window.FileReader();
-	    reader.readAsArrayBuffer(file);
-	    reader.onloadend = () => this.convertToBuffer(reader);
-  	}
-
-  	//function written by Kartik Shah (krtk6160)
-  	convertToBuffer = async(reader) => {
-	    const buffer = Buffer.from(reader.result);
-	    this.setState({
-	       buffer: buffer
-	    });
-  	}
-
-  //function written by Kartik Shah (krtk6160)
-  	uploadRecord = async(evt) => {
-	    evt.preventDefault();
-	    console.log("upload invoked");
-	    await ipfs.add(this.state.buffer, (err, res) => {
-	        console.log(err, res[0].hash);
-	    });
+		var str1="/ipfs/";
+		this.simpleStorageInstance.get(this.state.patientId,this.deptId,{ from : this.state.account}).then((result) => {
+			this.setState({ipfshash : result})
+		})
+		var file_to_get = str1.concat(this.state.ipfshash);
+		ipfs.get(file_to_get, (err, res) => {
+			console.log(err, res[0].content.toString());
+		});
   	}
 
   	handleChange = (evt) => {
@@ -67,9 +58,46 @@ class DocPage extends Component {
   		});
   	}
 
+
+  	uploadRecord = async(evt) => {
+    evt.preventDefault();
+    console.log("upload invoked");
+    await ipfs.add(this.state.buffer, (err, res) => {
+        console.log(err, res[0].hash);
+        this.simpleStorageInstance.set(this.state.patientId,res[0].hash,this.state.deptId, { from : this.state.account }).then((result)=>{
+    	this.setState({ipfshash : res[0]});
+    })
+    })
+    
+  }
+
+  	convertToBuffer = async(reader) => {
+    const buffer = Buffer.from(reader.result);
+    this.setState({
+       buffer: buffer
+    });
+  }
+
+  	captureFile = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    const file = evt.target.files[0];
+    let reader = new window.FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onloadend = () => this.convertToBuffer(reader);
+  }
+
+
 	render() {
     return (
-      <div>
+    <div className="App">
+        <nav className="navbar pure-menu pure-menu-horizontal">
+            <a href="#" className="pure-menu-heading pure-menu-link">Hospital Record System</a>
+        </nav>
+
+       <main className="container">
+        <div className="pure-g">
+        <div className="pure-u-1-1">
       	<form>
 			PatientId: <input type="text" name="patientId" onChange={this.handleChange} /> <br />
 			Department: <br />
@@ -83,7 +111,10 @@ class DocPage extends Component {
 			<input type="file" name="patientMedRecord" onChange={this.captureFile}/>
 			<button type="button" onClick={this.uploadRecord}>Upload</button>
 		</form>
-	  </div>
+	    </div>
+	    </div>
+       </main>
+      </div>
     );
   }
 }
