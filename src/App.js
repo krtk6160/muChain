@@ -201,3 +201,14 @@ class App extends Component {
 }
 
 export default App
+
+//<div className="App">
+      //   <form onSubmit={this.upload}>
+      //     <input type="file" onChange={this.captureFile}/>
+      //     <input type="submit" /><br /> <br />
+      //     Enter patient address:<input type="text" /><br/> <br/>
+      //     Enter deptartment name:
+      //     <input type="text" /><br /><br />
+      //     <input type="button" value="Get Details" onclick={this.getfile} /><br /><br/>
+      //   </form>
+      // </div>
