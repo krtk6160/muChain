@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
 //import SimpleStorageContract from '../build/contracts/SimpleStorage.json'
 import getWeb3 from './utils/getWeb3'
 import ipfs from './utils/ipfs.js'
-
+import DocPage from './doctorPage.js'
+import PatientPage from './patientPage.js'
 import './css/oswald.css'
 import './css/open-sans.css'
 import './css/pure-min.css'
@@ -13,11 +15,12 @@ class App extends Component {
     super(props)
 
     this.state = {
-      storageValue: 0,
       web3: null,
       hash: null,
       buffer: null
     }
+    this.renderDocPage = this.renderDocPage.bind(this);
+    this.renderPatientPage = this.renderPatientPage.bind(this);
   }
 
   componentWillMount() {
@@ -37,6 +40,76 @@ class App extends Component {
       console.log('Error finding web3.')
     })
   }
+
+ //  function instantiateContract() {
+	// const ABI = [
+	// {
+	// 	"constant": false,
+	// 	"inputs": [
+	// 		{
+	// 			"name": "newdoctor",
+	// 			"type": "address"
+	// 		},
+	// 		{
+	// 			"name": "dept",
+	// 			"type": "string"
+	// 		}
+	// 	],
+	// 	"name": "add",
+	// 	"outputs": [],
+	// 	"payable": false,
+	// 	"stateMutability": "nonpayable",
+	// 	"type": "function"
+	// },
+	// {
+	// 	"constant": false,
+	// 	"inputs": [
+	// 		{
+	// 			"name": "patient",
+	// 			"type": "address"
+	// 		},
+	// 		{
+	// 			"name": "ipfs_hash",
+	// 			"type": "string"
+	// 		},
+	// 		{
+	// 			"name": "dept",
+	// 			"type": "string"
+	// 		}
+	// 	],
+	// 	"name": "set",
+	// 	"outputs": [],
+	// 	"payable": false,
+	// 	"stateMutability": "nonpayable",
+	// 	"type": "function"
+	// },
+	// {
+	// 	"constant": true,
+	// 	"inputs": [
+	// 		{
+	// 			"name": "patient",
+	// 			"type": "address"
+	// 		},
+	// 		{
+	// 			"name": "dept",
+	// 			"type": "string"
+	// 		}
+	// 	],
+	// 	"name": "get",
+	// 	"outputs": [
+	// 		{
+	// 			"name": "",
+	// 			"type": "string"
+	// 		}
+	// 	],
+	// 	"payable": false,
+	// 	"stateMutability": "view",
+	// 	"type": "function"
+	// }
+	// ]
+
+ //  	var contract = new web3.eth.Contract()
+ //  }
 
   //function written by Kartik Shah (krtk6160)
   captureFile = (evt) => {
@@ -63,6 +136,12 @@ class App extends Component {
     await ipfs.add(this.state.buffer, (err, res) => {
         console.log(err, res[0].hash);
     })
+  }
+
+  getFile = async(hash) => {
+	await ipfs.get("/ipfs/Qma71JMRwZc2aVMZ5McmbggfTgMJJQ8k3HKM8GpMeBR2CU", (err, res) => {
+		console.log(err, res[0].content.toString());
+	});
   }
 
   // instantiateContract() {
@@ -96,15 +175,27 @@ class App extends Component {
   //     })
   //   })
   // }
+  renderDocPage = () => {
+	ReactDOM.render(
+		<DocPage 
+			web3={this.state.web3}/>,
+		document.getElementById('root')
+	)
+  }
+
+  renderPatientPage = () => {
+  	ReactDOM.render(
+		<PatientPage />,
+		document.getElementById('root')
+  	)
+  }
 
   render() {
     return (
-      <div className="App">
-        <form onSubmit={this.upload}>
-          <input type="file" onChange={this.captureFile}/>
-          <input type="submit" />
-        </form>
-      </div>
+      <div>
+			<button type="button" onClick={this.renderDocPage}>Doctor</button>
+			<button type="button" onClick={this.renderPatientPage}>Patient</button>
+	  </div>
     );
   }
 }

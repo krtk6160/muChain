@@ -20,7 +20,7 @@ contract SimpleStorage {
 		p.ipfshashes[dept] = ipfs_hash;	
     }
 
-    function get(address patient , string dept) public view returns (string) {
+    function get(address patient , string dept) public view returns (string) public {
   	    Patients storage p = Patient_record[patient];
   	    if(p.approved[msg.sender][dept]==true){
               return p.ipfshashes[dept];
