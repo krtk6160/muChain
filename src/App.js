@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 //import SimpleStorageContract from '../build/contracts/SimpleStorage.json'
 import getWeb3 from './utils/getWeb3'
-import ipfs from './utils/ipfs.js'
 import DocPage from './doctorPage.js'
 import PatientPage from './patientPage.js'
 import './css/oswald.css'
@@ -111,38 +110,11 @@ class App extends Component {
  //  	var contract = new web3.eth.Contract()
  //  }
 
-  //function written by Kartik Shah (krtk6160)
-  captureFile = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-    const file = evt.target.files[0];
-    let reader = new window.FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onloadend = () => this.convertToBuffer(reader);
-  }
-
-  //function written by Kartik Shah (krtk6160)
-  convertToBuffer = async(reader) => {
-    const buffer = Buffer.from(reader.result);
-    this.setState({
-       buffer: buffer
-    });
-  }
-
-  //function written by Kartik Shah (krtk6160)
-  upload = async(evt) => {
-    evt.preventDefault();
-    console.log("upload invoked");
-    await ipfs.add(this.state.buffer, (err, res) => {
-        console.log(err, res[0].hash);
-    })
-  }
-
-  getFile = async(hash) => {
-	await ipfs.get("/ipfs/Qma71JMRwZc2aVMZ5McmbggfTgMJJQ8k3HKM8GpMeBR2CU", (err, res) => {
-		console.log(err, res[0].content.toString());
-	});
-  }
+ //  getFile = async(hash) => {
+	// await ipfs.get("/ipfs/Qma71JMRwZc2aVMZ5McmbggfTgMJJQ8k3HKM8GpMeBR2CU", (err, res) => {
+	// 	console.log(err, res[0].content.toString());
+	// });
+ //  }
 
   // instantiateContract() {
   //   /*
@@ -178,14 +150,15 @@ class App extends Component {
   renderDocPage = () => {
 	ReactDOM.render(
 		<DocPage 
-			web3={this.state.web3}/>,
+			web3={this.state.web3} />,
 		document.getElementById('root')
 	)
   }
 
   renderPatientPage = () => {
   	ReactDOM.render(
-		<PatientPage />,
+		<PatientPage 
+			web3={this.state.web3} />,
 		document.getElementById('root')
   	)
   }

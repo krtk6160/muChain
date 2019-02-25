@@ -44,15 +44,13 @@ class DocPage extends Component {
 	    reader.onloadend = () => this.convertToBuffer(reader);
   	}
 
-  	//function written by Kartik Shah (krtk6160)
   	convertToBuffer = async(reader) => {
 	    const buffer = Buffer.from(reader.result);
 	    this.setState({
 	       buffer: buffer
 	    });
   	}
-
-  //function written by Kartik Shah (krtk6160)
+ 	//author: krtk6160
   	uploadRecord = async(evt) => {
 	    evt.preventDefault();
 	    console.log("upload invoked");
@@ -60,7 +58,7 @@ class DocPage extends Component {
 	        console.log(err, res[0].hash);
 	    });
   	}
-
+//author: krtk6160
   	handleChange = (evt) => {
   		this.setState({
   			[evt.target.name] : evt.target.value
@@ -69,7 +67,7 @@ class DocPage extends Component {
 
 	render() {
     return (
-      <div>
+      <div style={{padding:20}}>
       	<form>
 			PatientId: <input type="text" name="patientId" onChange={this.handleChange} /> <br />
 			Department: <br />
@@ -78,11 +76,12 @@ class DocPage extends Component {
 			<input type="radio" name="deptId" value="Neurology" onChange={this.handleChange} />Neurology <br />
 			<button type="button" onClick={this.getFile}>Fetch</button>
 		</form>
-		<br /><br /><br /><br />
+		<div style={{paddingTop:20}}>
 		<form>
 			<input type="file" name="patientMedRecord" onChange={this.captureFile}/>
 			<button type="button" onClick={this.uploadRecord}>Upload</button>
 		</form>
+		</div>
 	  </div>
     );
   }

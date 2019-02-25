@@ -2,8 +2,16 @@ import React, { Component } from 'react'
 
 class PatientPage extends Component {
 
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			web3: this.props.web3
+		}
+	}
+
 	componentWillMount() {
-		console.log(this.state.web3)
+
 	}
 
 	render() {
